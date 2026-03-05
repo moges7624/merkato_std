@@ -41,7 +41,7 @@ func (s *FileStore) getUser(id int) (*User, error) {
 
 	user, ok := s.users[id]
 	if !ok {
-		return nil, fmt.Errorf("user not found")
+		return nil, nil
 	}
 	return &user, nil
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -19,98 +20,98 @@ func NewUserHandler() *UserHandler {
 	}
 }
 
-func (h *UserHandler) handleGetUsers(w http.ResponseWriter, _ *http.Request) {
+func (h *UserHandler) handleGetUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.service.GetUsers()
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		serverErrorResponse(w, r, err)
 		return
 	}
 
 	err = writeJSON(w, http.StatusOK, envelope{"users": users})
 	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		serverErrorResponse(w, r, err)
 	}
 }
 
 func (h *UserHandler) handleGetUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		http.Error(w, "user id required", http.StatusBadRequest)
+		badRequestresponse(w, r, fmt.Errorf("user id required"))
 		return
 	}
 	if id < 1 {
-		http.Error(w, "invalid user id", http.StatusBadRequest)
+		badRequestresponse(w, r, fmt.Errorf("invalid user id"))
 		return
 	}
 
 	user, err := h.service.GetUser(id)
 	if err != nil {
-		http.Error(w, "user not found", http.StatusNotFound)
+		serverErrorResponse(w, r, err)
 		return
 	}
 
 	if user == nil {
-		http.Error(w, "user not found", http.StatusNotFound)
+		notFoundResponse(w, r)
 		return
 	}
 
 	err = writeJSON(w, http.StatusOK, envelope{"user": user})
 	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		serverErrorResponse(w, r, err)
 	}
 }
 
-func (h *UserHandler) handleCreateUser(w http.ResponseWriter, _ *http.Request) {
+func (h *UserHandler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	user, err := h.service.CreateUser()
 	if err != nil {
-		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		serverErrorResponse(w, r, err)
 		return
 	}
 
 	err = writeJSON(w, http.StatusOK, envelope{"user": user})
 	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		serverErrorResponse(w, r, err)
 	}
 }
 
 func (h *UserHandler) handleUpdateUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		http.Error(w, "user id required", http.StatusBadRequest)
+		badRequestresponse(w, r, fmt.Errorf("user id required"))
 		return
 	}
 
 	if id < 1 {
-		http.Error(w, "invalid user id", http.StatusBadRequest)
+		badRequestresponse(w, r, fmt.Errorf("invalid user id"))
 		return
 	}
 
 	user, err := h.service.UpdateUser(id)
 	if err != nil {
-		http.Error(w, "user not found", http.StatusNotFound)
+		serverErrorResponse(w, r, err)
 		return
 	}
 
 	if user == nil {
-		http.Error(w, "user not found", http.StatusNotFound)
+		notFoundResponse(w, r)
 		return
 	}
 
 	err = writeJSON(w, http.StatusOK, envelope{"user": user})
 	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		serverErrorResponse(w, r, err)
 	}
 }
 
 func (h *UserHandler) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		http.Error(w, "user id required", http.StatusBadRequest)
+		badRequestresponse(w, r, fmt.Errorf("user id required"))
 		return
 	}
 
 	if id < 1 {
-		http.Error(w, "invalid user id", http.StatusBadRequest)
+		badRequestresponse(w, r, fmt.Errorf("invalid user id"))
 		return
 	}
 
@@ -121,6 +122,6 @@ func (h *UserHandler) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	err = writeJSON(w, http.StatusOK, envelope{})
 	if err != nil {
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		serverErrorResponse(w, r, err)
 	}
 }
