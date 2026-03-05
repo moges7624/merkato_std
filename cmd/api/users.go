@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -27,7 +26,10 @@ func (h *UserHandler) handleGetUsers(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%+v", *users)
+	err = writeJSON(w, http.StatusOK, envelope{"users": users})
+	if err != nil {
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+	}
 }
 
 func (h *UserHandler) handleGetUser(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +54,10 @@ func (h *UserHandler) handleGetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%+v", *user)
+	err = writeJSON(w, http.StatusOK, envelope{"user": user})
+	if err != nil {
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+	}
 }
 
 func (h *UserHandler) handleCreateUser(w http.ResponseWriter, _ *http.Request) {
@@ -62,7 +67,10 @@ func (h *UserHandler) handleCreateUser(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%+v", *user)
+	err = writeJSON(w, http.StatusOK, envelope{"user": user})
+	if err != nil {
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+	}
 }
 
 func (h *UserHandler) handleUpdateUser(w http.ResponseWriter, r *http.Request) {
@@ -88,7 +96,10 @@ func (h *UserHandler) handleUpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%+v", *user)
+	err = writeJSON(w, http.StatusOK, envelope{"user": user})
+	if err != nil {
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+	}
 }
 
 func (h *UserHandler) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
@@ -103,10 +114,13 @@ func (h *UserHandler) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.service.DeleteUser(id); err != nil {
+	if err = h.service.DeleteUser(id); err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
-	fmt.Fprintf(w, "%+v", "User deleted successfully!")
+	err = writeJSON(w, http.StatusOK, envelope{})
+	if err != nil {
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+	}
 }
