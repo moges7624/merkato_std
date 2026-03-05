@@ -1,0 +1,85 @@
+package user
+
+import (
+	"fmt"
+	"sync"
+
+	"github.com/brianvoe/gofakeit/v7"
+)
+
+type FileStore struct {
+	mu    sync.RWMutex
+	users map[int]User
+	idSeq int
+}
+
+func NewFileStore() *FileStore {
+	return &FileStore{
+		users: map[int]User{
+			1: {ID: 1, Name: "Arianna Banks", Email: gofakeit.Email()},
+			2: {ID: 2, Name: "Nathanael Hale", Email: gofakeit.Email()},
+		},
+		idSeq: 2,
+	}
+}
+
+func (s *FileStore) getUsers() (*[]User, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	users := make([]User, 0, len(s.users))
+	for _, user := range s.users {
+		users = append(users, user)
+	}
+
+	return &users, nil
+}
+
+func (s *FileStore) getUser(id int) (*User, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	user, ok := s.users[id]
+	if !ok {
+		return nil, fmt.Errorf("user not found")
+	}
+	return &user, nil
+}
+
+func (s *FileStore) createUser() (*User, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.idSeq++
+	user := User{
+		ID:    s.idSeq,
+		Name:  gofakeit.Name(),
+		Email: gofakeit.Email(),
+	}
+
+	s.users[user.ID] = user
+
+	return &user, nil
+}
+
+func (s *FileStore) updateUser(user User) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	_, ok := s.users[user.ID]
+	if !ok {
+		return fmt.Errorf("User not fund")
+	}
+
+	s.users[user.ID] = user
+	return nil
+}
+
+func (s *FileStore) deleteUser(id int) error {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	delete(s.users, id)
+
+	return nil
+}
