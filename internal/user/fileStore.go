@@ -46,20 +46,15 @@ func (s *FileStore) getUser(id int) (*User, error) {
 	return &user, nil
 }
 
-func (s *FileStore) createUser() (*User, error) {
+func (s *FileStore) createUser(user *User) (*User, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.idSeq++
-	user := User{
-		ID:    s.idSeq,
-		Name:  gofakeit.Name(),
-		Email: gofakeit.Email(),
-	}
+	user.ID = s.idSeq
+	s.users[user.ID] = *user
 
-	s.users[user.ID] = user
-
-	return &user, nil
+	return user, nil
 }
 
 func (s *FileStore) updateUser(user User) error {

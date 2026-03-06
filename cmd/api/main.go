@@ -22,7 +22,7 @@ func main() {
 
 	app.routes = *app.NewRouter()
 
-	fmt.Printf("Starting server on port %d...", app.port)
+	fmt.Printf("Starting server on port %d...\n", app.port)
 
 	err := app.serve()
 	if err != nil {

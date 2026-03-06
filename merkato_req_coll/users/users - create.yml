@@ -6,6 +6,13 @@ info:
 http:
   method: POST
   url: "{{users}}"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "john doe",
+        "email": "john@mail.com"
+      }
   auth: inherit
 
 settings:

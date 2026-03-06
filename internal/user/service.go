@@ -2,8 +2,6 @@ package user
 
 import (
 	"fmt"
-
-	"github.com/brianvoe/gofakeit/v7"
 )
 
 type Service struct {
@@ -29,8 +27,13 @@ func (s *Service) GetUser(id int) (*User, error) {
 	return user, nil
 }
 
-func (s *Service) CreateUser() (*User, error) {
-	user, err := s.store.createUser()
+func (s *Service) CreateUser(tmpUser *CreateUserParams) (*User, error) {
+	user := &User{
+		Name:  tmpUser.Name,
+		Email: tmpUser.Email,
+	}
+
+	user, err := s.store.createUser(user)
 	if err != nil {
 		return nil, err
 	}
@@ -38,13 +41,19 @@ func (s *Service) CreateUser() (*User, error) {
 	return user, nil
 }
 
-func (s *Service) UpdateUser(id int) (*User, error) {
+func (s *Service) UpdateUser(
+	id int,
+	updateInput UpateUserParams,
+) (*User, error) {
 	user, err := s.store.getUser(id)
 	if err != nil {
 		return nil, fmt.Errorf("user not found")
 	}
 
-	user.Name = gofakeit.Name()
+	if updateInput.Name != "" {
+		user.Name = updateInput.Name
+	}
+
 	if err := s.store.updateUser(*user); err != nil {
 		return nil, err
 	}

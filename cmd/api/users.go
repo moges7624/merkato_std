@@ -62,10 +62,7 @@ func (h *UserHandler) handleGetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Name  string `json:"name"`
-		Email string `json:"email"`
-	}
+	var input user.CreateUserParams
 
 	err := readJSON(w, r, &input)
 	if err != nil {
@@ -73,9 +70,7 @@ func (h *UserHandler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("input: %+v", input)
-
-	user, err := h.service.CreateUser()
+	user, err := h.service.CreateUser(&input)
 	if err != nil {
 		serverErrorResponse(w, r, err)
 		return
@@ -99,7 +94,14 @@ func (h *UserHandler) handleUpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.service.UpdateUser(id)
+	var input user.UpateUserParams
+	err = readJSON(w, r, &input)
+	if err != nil {
+		badRequestresponse(w, r, err)
+		return
+	}
+
+	user, err := h.service.UpdateUser(id, input)
 	if err != nil {
 		serverErrorResponse(w, r, err)
 		return
