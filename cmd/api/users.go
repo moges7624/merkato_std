@@ -62,6 +62,19 @@ func (h *UserHandler) handleGetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Name  string `json:"name"`
+		Email string `json:"email"`
+	}
+
+	err := readJSON(w, r, &input)
+	if err != nil {
+		badRequestresponse(w, r, err)
+		return
+	}
+
+	fmt.Printf("input: %+v", input)
+
 	user, err := h.service.CreateUser()
 	if err != nil {
 		serverErrorResponse(w, r, err)
