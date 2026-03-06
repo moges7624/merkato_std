@@ -1,10 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/moges7624/merkato_std/internal/errio"
 	"github.com/moges7624/merkato_std/internal/user"
 )
 
@@ -46,12 +48,11 @@ func (h *UserHandler) handleGetUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.service.GetUser(id)
 	if err != nil {
-		serverErrorResponse(w, r, err)
-		return
-	}
-
-	if user == nil {
-		notFoundResponse(w, r)
+		if errors.Is(err, errio.ErrRecordNotFound) {
+			notFoundResponse(w, r)
+		} else {
+			serverErrorResponse(w, r, err)
+		}
 		return
 	}
 
@@ -103,12 +104,11 @@ func (h *UserHandler) handleUpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.service.UpdateUser(id, input)
 	if err != nil {
-		serverErrorResponse(w, r, err)
-		return
-	}
-
-	if user == nil {
-		notFoundResponse(w, r)
+		if errors.Is(err, errio.ErrRecordNotFound) {
+			notFoundResponse(w, r)
+		} else {
+			serverErrorResponse(w, r, err)
+		}
 		return
 	}
 

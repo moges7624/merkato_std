@@ -1,9 +1,5 @@
 package user
 
-import (
-	"fmt"
-)
-
 type Service struct {
 	store Store
 }
@@ -47,7 +43,7 @@ func (s *Service) UpdateUser(
 ) (*User, error) {
 	user, err := s.store.getUser(id)
 	if err != nil {
-		return nil, fmt.Errorf("user not found")
+		return nil, err
 	}
 
 	if updateInput.Name != "" {
@@ -64,7 +60,7 @@ func (s *Service) UpdateUser(
 func (s *Service) DeleteUser(id int) error {
 	_, err := s.store.getUser(id)
 	if err != nil {
-		return fmt.Errorf("user not found")
+		return err
 	}
 
 	if err := s.store.deleteUser(id); err != nil {
