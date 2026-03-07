@@ -8,6 +8,7 @@ import (
 
 	"github.com/moges7624/merkato_std/internal/errio"
 	"github.com/moges7624/merkato_std/internal/user"
+	"github.com/moges7624/merkato_std/internal/validator"
 )
 
 type UserHandler struct {
@@ -71,6 +72,17 @@ func (h *UserHandler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	v := validator.New()
+	tmpUser := user.User{
+		Name:  input.Name,
+		Email: input.Email,
+	}
+
+	if user.ValidateUser(v, &tmpUser); !v.Valid() {
+		failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
 	user, err := h.service.CreateUser(&input)
 	if err != nil {
 		serverErrorResponse(w, r, err)
@@ -99,6 +111,15 @@ func (h *UserHandler) handleUpdateUser(w http.ResponseWriter, r *http.Request) {
 	err = readJSON(w, r, &input)
 	if err != nil {
 		badRequestresponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+
+	v.Check(input.Name != "", "name", "must be provided")
+
+	if !v.Valid() {
+		failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
