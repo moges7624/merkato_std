@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/brianvoe/gofakeit/v7"
-	"github.com/moges7624/merkato_std/internal/errio"
 )
 
 type FileStore struct {
@@ -41,7 +40,7 @@ func (s *FileStore) getUser(id int) (*User, error) {
 
 	user, ok := s.users[id]
 	if !ok {
-		return nil, errio.ErrRecordNotFound
+		return nil, ErrUserNotFound
 	}
 	return &user, nil
 }
@@ -63,7 +62,7 @@ func (s *FileStore) updateUser(user User) error {
 
 	_, ok := s.users[user.ID]
 	if !ok {
-		return errio.ErrRecordNotFound
+		return ErrUserNotFound
 	}
 
 	s.users[user.ID] = user

@@ -2,11 +2,25 @@ package main
 
 import "net/http"
 
-func errorResponse(
+type ErrorType string
+
+const (
+	ResourceNotFound    ErrorType = "resource_not_found"
+	InvalidRequestError ErrorType = "invalid_request_error"
+	InternalError       ErrorType = "api_error"
+)
+
+type APIError struct {
+	Type    ErrorType `json:"type"`
+	Message string    `json:"message,omitempty"`
+	Details any       `json:"details,omitempty"`
+}
+
+func (s *APIServer) errorResponse(
 	w http.ResponseWriter,
 	_ *http.Request,
 	status int,
-	message any,
+	message *APIError,
 ) {
 	msg := envelope{"error": message}
 
@@ -16,32 +30,52 @@ func errorResponse(
 	}
 }
 
-func serverErrorResponse(
+func (s *APIServer) serverErrorResponse(
 	w http.ResponseWriter,
 	r *http.Request,
 	err error,
 ) {
 	message := "Server encountered a problem and could not process your request"
-	errorResponse(w, r, http.StatusInternalServerError, message)
+	APIErr := &APIError{
+		Type:    InternalError,
+		Message: message,
+	}
+	s.errorResponse(w, r, http.StatusInternalServerError, APIErr)
 }
 
-func notFoundResponse(w http.ResponseWriter, r *http.Request) {
-	message := "Requested resource could not be found"
-	errorResponse(w, r, http.StatusNotFound, message)
+func (s *APIServer) notFoundResponse(
+	w http.ResponseWriter,
+	r *http.Request,
+	msg string,
+) {
+	d := &APIError{
+		Type:    ResourceNotFound,
+		Message: msg,
+	}
+	s.errorResponse(w, r, http.StatusNotFound, d)
 }
 
-func badRequestresponse(
+func (s *APIServer) badRequestresponse(
 	w http.ResponseWriter,
 	r *http.Request,
 	err error,
 ) {
-	errorResponse(w, r, http.StatusBadRequest, err.Error())
+	APIErr := &APIError{
+		Type:    InvalidRequestError,
+		Message: err.Error(),
+	}
+	s.errorResponse(w, r, http.StatusUnprocessableEntity, APIErr)
 }
 
-func failedValidationResponse(
+func (s *APIServer) failedValidationResponse(
 	w http.ResponseWriter,
 	r *http.Request,
 	errors map[string]string,
 ) {
-	errorResponse(w, r, http.StatusUnprocessableEntity, errors)
+	APIErr := &APIError{
+		Type:    InvalidRequestError,
+		Message: "validation failed",
+		Details: errors,
+	}
+	s.errorResponse(w, r, http.StatusUnprocessableEntity, APIErr)
 }

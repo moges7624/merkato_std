@@ -6,111 +6,113 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/moges7624/merkato_std/internal/errio"
-	"github.com/moges7624/merkato_std/internal/user"
+	usr "github.com/moges7624/merkato_std/internal/user"
 	"github.com/moges7624/merkato_std/internal/validator"
 )
 
 type UserHandler struct {
-	service user.Service
+	service usr.Service
+	s       *APIServer
 }
 
-func NewUserHandler() *UserHandler {
-	store := user.NewFileStore()
+func NewUserHandler(s *APIServer) *UserHandler {
+	store := usr.NewFileStore()
 
 	return &UserHandler{
-		service: *user.NewService(store),
+		service: *usr.NewService(store),
+		s:       s,
 	}
 }
 
 func (h *UserHandler) handleGetUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.service.GetUsers()
 	if err != nil {
-		serverErrorResponse(w, r, err)
+		h.s.serverErrorResponse(w, r, err)
 		return
 	}
 
 	err = writeJSON(w, http.StatusOK, envelope{"users": users})
 	if err != nil {
-		serverErrorResponse(w, r, err)
+		h.s.serverErrorResponse(w, r, err)
 	}
 }
 
 func (h *UserHandler) handleGetUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		badRequestresponse(w, r, fmt.Errorf("user id required"))
+		h.s.badRequestresponse(w, r, fmt.Errorf("user id required"))
 		return
 	}
+
 	if id < 1 {
-		badRequestresponse(w, r, fmt.Errorf("invalid user id"))
+		h.s.badRequestresponse(w, r, fmt.Errorf("invalid user id"))
 		return
 	}
 
 	user, err := h.service.GetUser(id)
 	if err != nil {
-		if errors.Is(err, errio.ErrRecordNotFound) {
-			notFoundResponse(w, r)
+		if errors.Is(err, usr.ErrUserNotFound) {
+			h.s.notFoundResponse(w, r, err.Error())
 		} else {
-			serverErrorResponse(w, r, err)
+			h.s.serverErrorResponse(w, r, err)
 		}
 		return
 	}
 
 	err = writeJSON(w, http.StatusOK, envelope{"user": user})
 	if err != nil {
-		serverErrorResponse(w, r, err)
+		h.s.serverErrorResponse(w, r, err)
 	}
 }
 
 func (h *UserHandler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
-	var input user.CreateUserParams
+	var input usr.CreateUserParams
 
 	err := readJSON(w, r, &input)
 	if err != nil {
-		badRequestresponse(w, r, err)
+		h.s.badRequestresponse(w, r, err)
 		return
 	}
 
 	v := validator.New()
-	tmpUser := user.User{
+	tmpUser := usr.User{
 		Name:  input.Name,
 		Email: input.Email,
 	}
 
-	if user.ValidateUser(v, &tmpUser); !v.Valid() {
-		failedValidationResponse(w, r, v.Errors)
+	if usr.ValidateUser(v, &tmpUser); !v.Valid() {
+		h.s.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	user, err := h.service.CreateUser(&input)
 	if err != nil {
-		serverErrorResponse(w, r, err)
+		h.s.serverErrorResponse(w, r, err)
 		return
 	}
 
 	err = writeJSON(w, http.StatusOK, envelope{"user": user})
 	if err != nil {
-		serverErrorResponse(w, r, err)
+		h.s.serverErrorResponse(w, r, err)
 	}
 }
 
 func (h *UserHandler) handleUpdateUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		badRequestresponse(w, r, fmt.Errorf("user id required"))
+		h.s.badRequestresponse(w, r, fmt.Errorf("user id required"))
 		return
 	}
 
 	if id < 1 {
-		badRequestresponse(w, r, fmt.Errorf("invalid user id"))
+		h.s.badRequestresponse(w, r, fmt.Errorf("invalid user id"))
 		return
 	}
 
-	var input user.UpateUserParams
+	var input usr.UpateUserParams
 	err = readJSON(w, r, &input)
 	if err != nil {
-		badRequestresponse(w, r, err)
+		h.s.badRequestresponse(w, r, err)
 		return
 	}
 
@@ -119,35 +121,35 @@ func (h *UserHandler) handleUpdateUser(w http.ResponseWriter, r *http.Request) {
 	v.Check(input.Name != "", "name", "must be provided")
 
 	if !v.Valid() {
-		failedValidationResponse(w, r, v.Errors)
+		h.s.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	user, err := h.service.UpdateUser(id, input)
 	if err != nil {
-		if errors.Is(err, errio.ErrRecordNotFound) {
-			notFoundResponse(w, r)
+		if errors.Is(err, usr.ErrUserNotFound) {
+			h.s.notFoundResponse(w, r, err.Error())
 		} else {
-			serverErrorResponse(w, r, err)
+			h.s.serverErrorResponse(w, r, err)
 		}
 		return
 	}
 
 	err = writeJSON(w, http.StatusOK, envelope{"user": user})
 	if err != nil {
-		serverErrorResponse(w, r, err)
+		h.s.serverErrorResponse(w, r, err)
 	}
 }
 
 func (h *UserHandler) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
 	if err != nil {
-		badRequestresponse(w, r, fmt.Errorf("user id required"))
+		h.s.badRequestresponse(w, r, fmt.Errorf("user id required"))
 		return
 	}
 
 	if id < 1 {
-		badRequestresponse(w, r, fmt.Errorf("invalid user id"))
+		h.s.badRequestresponse(w, r, fmt.Errorf("invalid user id"))
 		return
 	}
 
@@ -158,6 +160,6 @@ func (h *UserHandler) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	err = writeJSON(w, http.StatusOK, envelope{})
 	if err != nil {
-		serverErrorResponse(w, r, err)
+		h.s.serverErrorResponse(w, r, err)
 	}
 }

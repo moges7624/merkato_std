@@ -6,6 +6,12 @@ info:
 http:
   method: PATCH
   url: "{{users}}/3"
+  body:
+    type: json
+    data: |-
+      {
+        
+      }
   auth: inherit
 
 settings:

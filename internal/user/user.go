@@ -1,9 +1,15 @@
 package user
 
 import (
+	"errors"
 	"regexp"
 
 	"github.com/moges7624/merkato_std/internal/validator"
+)
+
+var (
+	ErrUserNotFound      = errors.New("user not found")
+	ErrUserAlreadyExists = errors.New("user already exists")
 )
 
 type User struct {

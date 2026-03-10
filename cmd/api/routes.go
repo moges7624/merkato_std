@@ -14,7 +14,7 @@ func (s *APIServer) NewRouter() *http.ServeMux {
 
 	mux.HandleFunc("/userHandler.llo", homeHandler)
 
-	userHandler := NewUserHandler()
+	userHandler := NewUserHandler(s)
 	mux.HandleFunc("GET /users", userHandler.handleGetUsers)
 	mux.HandleFunc("POST /users", userHandler.handleCreateUser)
 	mux.HandleFunc("GET /users/{id}", userHandler.handleGetUser)
