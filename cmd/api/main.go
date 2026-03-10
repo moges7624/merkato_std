@@ -2,13 +2,15 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"log/slog"
 	"net/http"
+	"os"
 )
 
 type APIServer struct {
 	port   int
 	routes http.ServeMux
+	logger *slog.Logger
 }
 
 func main() {
@@ -16,16 +18,21 @@ func main() {
 
 	flag.IntVar(&port, "port", 4000, "API server port")
 
+	logHanlder := slog.NewJSONHandler(os.Stdout, nil)
+	logger := slog.New(logHanlder)
+
 	app := &APIServer{
-		port: port,
+		port:   port,
+		logger: logger,
 	}
 
 	app.routes = *app.NewRouter()
 
-	fmt.Printf("Starting server on port %d...\n", app.port)
+	app.logger.Info("Starting server", "port", app.port)
 
 	err := app.serve()
 	if err != nil {
-		panic(err)
+		app.logger.Error(err.Error())
+		os.Exit(1)
 	}
 }

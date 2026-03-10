@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	"log/slog"
+	"net/http"
+)
 
 type ErrorType string
 
@@ -16,13 +19,21 @@ type APIError struct {
 	Details any       `json:"details,omitempty"`
 }
 
+func (s *APIServer) logError(apiError *APIError) {
+	s.logger.Error(
+		string(apiError.Message),
+		slog.String("type", string(apiError.Type)),
+	)
+}
+
 func (s *APIServer) errorResponse(
 	w http.ResponseWriter,
 	_ *http.Request,
 	status int,
-	message *APIError,
+	apiError *APIError,
 ) {
-	msg := envelope{"error": message}
+	msg := envelope{"error": apiError}
+	s.logError(apiError)
 
 	err := writeJSON(w, status, msg)
 	if err != nil {
