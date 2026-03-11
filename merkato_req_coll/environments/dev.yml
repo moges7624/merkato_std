@@ -4,3 +4,5 @@ variables:
     value: http://localhost:4000
   - name: users
     value: "{{base_url}}/users"
+  - name: products
+    value: "{{base_url}}/products"

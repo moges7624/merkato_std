@@ -3,6 +3,8 @@ package main
 import (
 	"io"
 	"net/http"
+
+	"github.com/moges7624/merkato_std/internal/product"
 )
 
 func homeHandler(w http.ResponseWriter, _ *http.Request) {
@@ -20,6 +22,12 @@ func (s *APIServer) NewRouter() *http.ServeMux {
 	mux.HandleFunc("GET /users/{id}", userHandler.handleGetUser)
 	mux.HandleFunc("PATCH /users/{id}", userHandler.handleUpdateUser)
 	mux.HandleFunc("DELETE /users/{id}", userHandler.handleDeleteUser)
+
+	productFileStore := product.NewFileStore()
+	productHandler := NewProductHandler(s, productFileStore)
+	mux.HandleFunc("GET /products", productHandler.handleGetProducts)
+	mux.HandleFunc("GET /products/{id}", productHandler.handleGetProduct)
+	mux.HandleFunc("POST /products", productHandler.handleCreateProduct)
 
 	return mux
 }

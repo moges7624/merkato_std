@@ -1,0 +1,25 @@
+package product
+
+import (
+	"errors"
+	"time"
+)
+
+var ErrProductNotFound = errors.New("product not found")
+
+type Product struct {
+	ID           int64     `json:"id"`
+	Name         string    `json:"name"`
+	PriceInCents int32     `json:"price_in_cents"`
+	Quantity     int32     `json:"quantity"`
+	CreatedAt    time.Time `json:"created_at"`
+}
+
+// - id
+// - name
+// - description
+// - category_id
+// - price
+// - stock quantity
+// - version
+//
