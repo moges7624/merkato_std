@@ -11,6 +11,7 @@ const (
 	ResourceNotFound    ErrorType = "resource_not_found"
 	InvalidRequestError ErrorType = "invalid_request_error"
 	InternalError       ErrorType = "api_error"
+	InventoryError      ErrorType = "inventory_error"
 )
 
 type APIError struct {
@@ -87,6 +88,18 @@ func (s *APIServer) failedValidationResponse(
 		Type:    InvalidRequestError,
 		Message: "validation failed",
 		Details: errors,
+	}
+	s.errorResponse(w, r, http.StatusUnprocessableEntity, APIErr)
+}
+
+func (s *APIServer) inventoryErrorResponse(
+	w http.ResponseWriter,
+	r *http.Request,
+	message string,
+) {
+	APIErr := &APIError{
+		Type:    InventoryError,
+		Message: message,
 	}
 	s.errorResponse(w, r, http.StatusUnprocessableEntity, APIErr)
 }

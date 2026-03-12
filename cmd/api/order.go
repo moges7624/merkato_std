@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/moges7624/merkato_std/internal/order"
+	"github.com/moges7624/merkato_std/internal/product"
 	"github.com/moges7624/merkato_std/internal/validator"
 )
 
@@ -55,7 +57,11 @@ func (h *orderHandler) handleCreateOrder(
 
 	order, err := h.service.CreateOrder(&input)
 	if err != nil {
-		h.s.badRequestresponse(w, r, err)
+		if errors.Is(err, product.ErrInsufficientStock) {
+			h.s.inventoryErrorResponse(w, r, err.Error())
+		} else {
+			h.s.badRequestresponse(w, r, err)
+		}
 		return
 	}
 
