@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/moges7624/merkato_std/internal/order"
 	"github.com/moges7624/merkato_std/internal/product"
 )
 
@@ -24,10 +25,17 @@ func (s *APIServer) NewRouter() *http.ServeMux {
 	mux.HandleFunc("DELETE /users/{id}", userHandler.handleDeleteUser)
 
 	productFileStore := product.NewFileStore()
-	productHandler := NewProductHandler(s, productFileStore)
+	productService := product.NewService(productFileStore)
+	productHandler := NewProductHandler(s, *productService)
 	mux.HandleFunc("GET /products", productHandler.handleGetProducts)
 	mux.HandleFunc("GET /products/{id}", productHandler.handleGetProduct)
 	mux.HandleFunc("POST /products", productHandler.handleCreateProduct)
+
+	orderFileStore := order.NewFileStore()
+	orderService := order.NewService(orderFileStore, *productService)
+	orderHandler := NewOrderHandler(s, *orderService)
+	mux.HandleFunc("GET /orders", orderHandler.handleGetOrders)
+	mux.HandleFunc("POST /orders", orderHandler.handleCreateOrder)
 
 	return mux
 }

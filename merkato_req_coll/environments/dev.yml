@@ -6,3 +6,5 @@ variables:
     value: "{{base_url}}/users"
   - name: products
     value: "{{base_url}}/products"
+  - name: orders
+    value: "{{base_url}}/orders"

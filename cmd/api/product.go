@@ -15,9 +15,12 @@ type ProductHandler struct {
 	s       *APIServer
 }
 
-func NewProductHandler(s *APIServer, store product.Store) *ProductHandler {
+func NewProductHandler(
+	s *APIServer,
+	service product.Service,
+) *ProductHandler {
 	return &ProductHandler{
-		service: *product.NewService(store),
+		service: service,
 		s:       s,
 	}
 }

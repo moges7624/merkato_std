@@ -14,12 +14,3 @@ type Product struct {
 	Quantity     int32     `json:"quantity"`
 	CreatedAt    time.Time `json:"created_at"`
 }
-
-// - id
-// - name
-// - description
-// - category_id
-// - price
-// - stock quantity
-// - version
-//
