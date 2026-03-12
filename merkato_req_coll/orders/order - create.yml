@@ -6,6 +6,24 @@ info:
 http:
   method: POST
   url: "{{orders}}"
+  body:
+    type: json
+    data: |-
+      {
+        "user_id": 2,
+        "items": [
+          {
+            "product_id": 1,
+            "quantity": 120,
+            "price_in_usd": 29.33
+          },
+          {
+            "product_id": 2,
+            "quantity": 1,
+            "price_in_usd": 20
+          }
+        ]
+      }
   auth: inherit
 
 settings:

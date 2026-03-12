@@ -6,6 +6,7 @@ import (
 
 	"github.com/moges7624/merkato_std/internal/order"
 	"github.com/moges7624/merkato_std/internal/product"
+	"github.com/moges7624/merkato_std/internal/user"
 )
 
 func homeHandler(w http.ResponseWriter, _ *http.Request) {
@@ -17,7 +18,10 @@ func (s *APIServer) NewRouter() *http.ServeMux {
 
 	mux.HandleFunc("/home", homeHandler)
 
-	userHandler := NewUserHandler(s)
+	// userFileStore := user.NewFileStore()
+	userPgStore := user.NewPostgresStore(s.DB)
+	userService := user.NewService(userPgStore)
+	userHandler := NewUserHandler(s, *userService)
 	mux.HandleFunc("GET /users", userHandler.handleGetUsers)
 	mux.HandleFunc("POST /users", userHandler.handleCreateUser)
 	mux.HandleFunc("GET /users/{id}", userHandler.handleGetUser)

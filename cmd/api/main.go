@@ -15,6 +15,7 @@ type APIServer struct {
 	routes http.ServeMux
 	logger *slog.Logger
 	dsn    string
+	DB     *sql.DB
 }
 
 func main() {
@@ -25,9 +26,11 @@ func main() {
 	flag.StringVar(
 		&dsn,
 		"db-dsn",
-		"postgres://merkato:123456@localhost/merkatostd?sslmode=disable",
+		"",
 		"PostgreSQL DSN",
 	)
+
+	flag.Parse()
 
 	logHanlder := slog.NewJSONHandler(os.Stdout, nil)
 	logger := slog.New(logHanlder)
@@ -43,6 +46,7 @@ func main() {
 	app := &APIServer{
 		port:   port,
 		logger: logger,
+		DB:     db,
 	}
 
 	app.routes = *app.NewRouter()

@@ -15,11 +15,9 @@ type UserHandler struct {
 	s       *APIServer
 }
 
-func NewUserHandler(s *APIServer) *UserHandler {
-	store := usr.NewFileStore()
-
+func NewUserHandler(s *APIServer, userService usr.Service) *UserHandler {
 	return &UserHandler{
-		service: *usr.NewService(store),
+		service: userService,
 		s:       s,
 	}
 }
