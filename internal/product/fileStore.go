@@ -68,3 +68,12 @@ func (s *FileStore) createProduct(prod *Product) error {
 
 	return nil
 }
+
+func (s *FileStore) updateProduct(prod *Product) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.products[prod.ID] = *prod
+
+	return nil
+}

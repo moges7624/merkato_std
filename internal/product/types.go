@@ -8,6 +8,7 @@ type Store interface {
 	getProducts() (*[]Product, error)
 	getProduct(id int64) (*Product, error)
 	createProduct(prod *Product) error
+	updateProduct(prod *Product) error
 }
 
 type CreateProductRequest struct {

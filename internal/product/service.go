@@ -41,3 +41,17 @@ func (s *Service) CreateProducts(cpr *CreateProductRequest) (*Product, error) {
 
 	return product, nil
 }
+
+func (s *Service) DeductStock(productID int64, quantity int) error {
+	p, err := s.store.getProduct(productID)
+	if err != nil {
+		return err
+	}
+
+	if p.Quantity < int32(quantity) {
+		return ErrInsufficientStock
+	}
+
+	p.Quantity -= int32(quantity)
+	return s.store.updateProduct(p)
+}

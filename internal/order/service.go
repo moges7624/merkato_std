@@ -30,6 +30,11 @@ func (s *Service) CreateOrder(req *CreateOrderRequest) (*Order, error) {
 			return nil, err
 		}
 
+		err = s.productService.DeductStock(*item.ProductID, *item.Quantity)
+		if err != nil {
+			return nil, err
+		}
+
 		priceInCent := int32(*item.PriceInUSD) * 100
 
 		items = append(items, OrderItem{
