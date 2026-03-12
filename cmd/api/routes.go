@@ -15,7 +15,7 @@ func homeHandler(w http.ResponseWriter, _ *http.Request) {
 func (s *APIServer) NewRouter() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/userHandler.llo", homeHandler)
+	mux.HandleFunc("/home", homeHandler)
 
 	userHandler := NewUserHandler(s)
 	mux.HandleFunc("GET /users", userHandler.handleGetUsers)
