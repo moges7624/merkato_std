@@ -28,8 +28,9 @@ func (s *APIServer) NewRouter() *http.ServeMux {
 	mux.HandleFunc("PATCH /users/{id}", userHandler.handleUpdateUser)
 	mux.HandleFunc("DELETE /users/{id}", userHandler.handleDeleteUser)
 
-	productFileStore := product.NewFileStore()
-	productService := product.NewService(productFileStore)
+	// productFileStore := product.NewFileStore()
+	productPostgresStore := product.NewPostgresStore(s.DB)
+	productService := product.NewService(productPostgresStore)
 	productHandler := NewProductHandler(s, *productService)
 	mux.HandleFunc("GET /products", productHandler.handleGetProducts)
 	mux.HandleFunc("GET /products/{id}", productHandler.handleGetProduct)

@@ -3,7 +3,6 @@ package user
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"strings"
 )
 
@@ -60,7 +59,6 @@ func (ps *PostgresStore) getUser(id int) (*User, error) {
 		&user.Email,
 	)
 	if err != nil {
-		fmt.Println(err)
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
 			return nil, ErrUserNotFound
