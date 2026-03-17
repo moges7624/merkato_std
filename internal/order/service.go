@@ -16,11 +16,16 @@ func NewService(store Store, productService product.Service) *Service {
 	}
 }
 
-func (s *Service) GetOrders() (*[]Order, error) {
+func (s *Service) GetOrders() ([]*Order, error) {
 	return s.store.getAll()
 }
 
+func (s *Service) GetOrderByID(id int64) (*Order, error) {
+	return s.store.getByID(id)
+}
+
 func (s *Service) CreateOrder(req *CreateOrderRequest) (*Order, error) {
+	// TODO: check user is available
 	totalPriceInCents := 0
 	items := make([]OrderItem, 0, len(*req.Items))
 

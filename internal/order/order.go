@@ -1,5 +1,7 @@
 package order
 
+import "errors"
+
 type OrderStatus string
 
 var (
@@ -7,6 +9,8 @@ var (
 	StatusShipped   OrderStatus = "shipped"
 	StatusDelivered OrderStatus = "delivered"
 )
+
+var ErrOrderNotFound = errors.New("order not found")
 
 type Order struct {
 	ID                 int64       `json:"id"`

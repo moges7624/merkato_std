@@ -36,11 +36,13 @@ func (s *APIServer) NewRouter() *http.ServeMux {
 	mux.HandleFunc("GET /products/{id}", productHandler.handleGetProduct)
 	mux.HandleFunc("POST /products", productHandler.handleCreateProduct)
 
-	orderFileStore := order.NewFileStore()
-	orderService := order.NewService(orderFileStore, *productService)
+	// orderFileStore := order.NewFileStore()
+	orderPostgresStore := order.NewPostgresStore(s.DB)
+	orderService := order.NewService(orderPostgresStore, *productService)
 	orderHandler := NewOrderHandler(s, *orderService)
 	mux.HandleFunc("GET /orders", orderHandler.handleGetOrders)
 	mux.HandleFunc("POST /orders", orderHandler.handleCreateOrder)
+	mux.HandleFunc("GET /orders/{id}", orderHandler.handleGetOrderByID)
 
 	return mux
 }

@@ -1,6 +1,9 @@
 package order
 
-import "sync"
+import (
+	"errors"
+	"sync"
+)
 
 type FileStore struct {
 	mu     sync.RWMutex
@@ -40,16 +43,20 @@ func NewFileStore() *FileStore {
 	}
 }
 
-func (fs *FileStore) getAll() (*[]Order, error) {
+func (fs *FileStore) getAll() ([]*Order, error) {
 	fs.mu.RLock()
 	defer fs.mu.RUnlock()
 
-	orders := make([]Order, 0, len(fs.orders))
+	orders := make([]*Order, 0, len(fs.orders))
 	for _, order := range fs.orders {
-		orders = append(orders, order)
+		orders = append(orders, &order)
 	}
 
-	return &orders, nil
+	return orders, nil
+}
+
+func (fs *FileStore) getByID(id int64) (*Order, error) {
+	return nil, errors.New("not implemented")
 }
 
 func (fs *FileStore) insert(order *Order) error {

@@ -7,8 +7,9 @@ import (
 )
 
 type Store interface {
-	getAll() (*[]Order, error)
+	getAll() ([]*Order, error)
 	insert(order *Order) error
+	getByID(id int64) (*Order, error)
 }
 
 type orderItemRequest struct {
@@ -72,4 +73,3 @@ func ValidateCreateOrderRequest(
 	v.Check(len(*body.Items) > 0, "items", "must have atleast one item")
 	ValidateOrderRequestItmes(v, body.Items)
 }
-

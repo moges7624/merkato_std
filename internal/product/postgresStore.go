@@ -94,5 +94,20 @@ func (ps *PostgresStore) createProduct(p *Product) error {
 }
 
 func (ps *PostgresStore) updateProduct(p *Product) error {
-	return errors.New("not implemented")
+	query := `
+	UPDATE products
+	SET name = $1, price_in_cents = $2, quantity = $3
+	WHERE id = $4
+`
+
+	_, err := ps.DB.Exec(query, p.Name, p.PriceInCents, p.Quantity, p.ID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrProductNotFound
+		}
+
+		return err
+	}
+
+	return nil
 }

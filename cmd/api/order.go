@@ -2,7 +2,9 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/moges7624/merkato_std/internal/order"
 	"github.com/moges7624/merkato_std/internal/product"
@@ -34,6 +36,38 @@ func (h *orderHandler) handleGetOrders(
 	err = writeJSON(w, http.StatusOK, envelope{"orders": orders})
 	if err != nil {
 		h.s.serverErrorResponse(w, r, err)
+	}
+}
+
+func (h *orderHandler) handleGetOrderByID(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		h.s.badRequestresponse(w, r, fmt.Errorf("numeric order id required"))
+		return
+	}
+
+	if id < 1 {
+		h.s.badRequestresponse(w, r, fmt.Errorf("invalid order id"))
+		return
+	}
+
+	o, err := h.service.GetOrderByID(int64(id))
+	if err != nil {
+		if errors.Is(err, order.ErrOrderNotFound) {
+			h.s.notFoundResponse(w, r, err.Error())
+		} else {
+			h.s.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+
+	err = writeJSON(w, http.StatusOK, envelope{"order": o})
+	if err != nil {
+		h.s.serverErrorResponse(w, r, err)
+		return
 	}
 }
 
