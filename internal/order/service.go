@@ -43,7 +43,7 @@ func (s *Service) CreateOrder(req *CreateOrderRequest) (*Order, error) {
 			PurchasePriceInCents: priceInCent,
 		})
 
-		totalPriceInCents += int(priceInCent)
+		totalPriceInCents += int(priceInCent) * *item.Quantity
 	}
 
 	order := &Order{
