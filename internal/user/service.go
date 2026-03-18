@@ -29,6 +29,8 @@ func (s *Service) CreateUser(tmpUser *CreateUserParams) (*User, error) {
 		Email: tmpUser.Email,
 	}
 
+	user.setPassword(tmpUser.PlainTextPassword)
+
 	user, err := s.store.createUser(user)
 	if err != nil {
 		return nil, err

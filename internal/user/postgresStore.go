@@ -71,11 +71,11 @@ func (ps *PostgresStore) getUser(id int) (*User, error) {
 }
 
 func (ps *PostgresStore) createUser(user *User) (*User, error) {
-	query := `INSERT INTO users (name, email)
-	VALUES ($1, $2)
+	query := `INSERT INTO users (name, email, password_hash)
+	VALUES ($1, $2, $3)
 	RETURNING id`
 
-	err := ps.DB.QueryRow(query, user.Name, user.Email).Scan(
+	err := ps.DB.QueryRow(query, user.Name, user.Email, user.Password.hash).Scan(
 		&user.ID)
 	if err != nil {
 		switch {

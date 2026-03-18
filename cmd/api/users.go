@@ -73,19 +73,19 @@ func (h *UserHandler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	v := validator.New()
-	tmpUser := usr.User{
-		Name:  input.Name,
-		Email: input.Email,
-	}
 
-	if usr.ValidateUser(v, &tmpUser); !v.Valid() {
+	if input.Validate(v); !v.Valid() {
 		h.s.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	user, err := h.service.CreateUser(&input)
 	if err != nil {
-		h.s.serverErrorResponse(w, r, err)
+		if errors.Is(err, usr.ErrUserAlreadyExists) {
+			h.s.badRequestresponse(w, r, fmt.Errorf("user with given info already exists"))
+		} else {
+			h.s.serverErrorResponse(w, r, err)
+		}
 		return
 	}
 
