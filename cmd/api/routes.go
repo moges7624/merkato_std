@@ -38,7 +38,10 @@ func (s *APIServer) NewRouter() *http.ServeMux {
 
 	// orderFileStore := order.NewFileStore()
 	orderPostgresStore := order.NewPostgresStore(s.DB)
-	orderService := order.NewService(orderPostgresStore, *productService)
+	orderService := order.NewService(
+		orderPostgresStore,
+		*productService,
+		*userService)
 	orderHandler := NewOrderHandler(s, *orderService)
 	mux.HandleFunc("GET /orders", orderHandler.handleGetOrders)
 	mux.HandleFunc("POST /orders", orderHandler.handleCreateOrder)

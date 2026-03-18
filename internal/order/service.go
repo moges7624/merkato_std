@@ -2,17 +2,24 @@ package order
 
 import (
 	"github.com/moges7624/merkato_std/internal/product"
+	"github.com/moges7624/merkato_std/internal/user"
 )
 
 type Service struct {
 	store          Store
 	productService product.Service
+	userService    user.Service
 }
 
-func NewService(store Store, productService product.Service) *Service {
+func NewService(
+	store Store,
+	productService product.Service,
+	userService user.Service,
+) *Service {
 	return &Service{
 		store:          store,
 		productService: productService,
+		userService:    userService,
 	}
 }
 
@@ -25,7 +32,10 @@ func (s *Service) GetOrderByID(id int64) (*Order, error) {
 }
 
 func (s *Service) CreateOrder(req *CreateOrderRequest) (*Order, error) {
-	// TODO: check user is available
+	_, err := s.userService.GetUser(int(*req.UserID))
+	if err != nil {
+		return nil, err
+	}
 	totalPriceInCents := 0
 	items := make([]OrderItem, 0, len(*req.Items))
 
@@ -58,7 +68,7 @@ func (s *Service) CreateOrder(req *CreateOrderRequest) (*Order, error) {
 		TotalAmountInCents: int32(totalPriceInCents),
 	}
 
-	err := s.store.insert(order)
+	err = s.store.insert(order)
 	if err != nil {
 		return nil, err
 	}
