@@ -15,7 +15,7 @@ func NewPostgresStore(db *sql.DB) *PostgresStore {
 	}
 }
 
-func (ps *PostgresStore) getProducts() (*[]Product, error) {
+func (ps *PostgresStore) getProducts() ([]*Product, error) {
 	query := `
 	SELECT id, name, price_in_cents, quantity, created_at
 	FROM products
@@ -28,7 +28,7 @@ func (ps *PostgresStore) getProducts() (*[]Product, error) {
 
 	defer rows.Close()
 
-	products := []Product{}
+	products := []*Product{}
 
 	for rows.Next() {
 		var p Product
@@ -44,10 +44,10 @@ func (ps *PostgresStore) getProducts() (*[]Product, error) {
 			return nil, err
 		}
 
-		products = append(products, p)
+		products = append(products, &p)
 	}
 
-	return &products, nil
+	return products, nil
 }
 
 func (ps *PostgresStore) getProduct(id int64) (*Product, error) {

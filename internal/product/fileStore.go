@@ -34,16 +34,16 @@ func NewFileStore() *FileStore {
 	}
 }
 
-func (s *FileStore) getProducts() (*[]Product, error) {
+func (s *FileStore) getProducts() ([]*Product, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	products := make([]Product, 0, len(s.products))
+	products := make([]*Product, 0, len(s.products))
 	for _, product := range s.products {
-		products = append(products, product)
+		products = append(products, &product)
 	}
 
-	return &products, nil
+	return products, nil
 }
 
 func (s *FileStore) getProduct(id int64) (*Product, error) {

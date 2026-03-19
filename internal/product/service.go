@@ -10,7 +10,7 @@ func NewService(store Store) *Service {
 	}
 }
 
-func (s *Service) GetProducts() (*[]Product, error) {
+func (s *Service) GetProducts() ([]*Product, error) {
 	products, err := s.store.getProducts()
 	if err != nil {
 		return nil, err
