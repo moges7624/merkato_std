@@ -4,6 +4,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/moges7624/merkato_std/internal/auth"
 	"github.com/moges7624/merkato_std/internal/order"
 	"github.com/moges7624/merkato_std/internal/product"
 	"github.com/moges7624/merkato_std/internal/user"
@@ -18,23 +19,35 @@ func (s *APIServer) NewRouter() *http.ServeMux {
 
 	mux.HandleFunc("/home", homeHandler)
 
-	// userFileStore := user.NewFileStore()
 	userPgStore := user.NewPostgresStore(s.DB)
 	userService := user.NewService(userPgStore)
+
+	authService := auth.NewJWTService("sdsdfdJljjadfef", "sdsdfdJljjadfef")
+	authHandler := NewAuthHandler(s, *authService, *userService)
+	mux.HandleFunc("POST /auth/login", authHandler.handleLogin)
+
+	// userFileStore := user.NewFileStore()
 	userHandler := NewUserHandler(s, *userService)
-	mux.HandleFunc("GET /users", userHandler.handleGetUsers)
+	mux.HandleFunc("GET /users",
+		s.AuthRequired(authService, userHandler.handleGetUsers))
 	mux.HandleFunc("POST /users", userHandler.handleCreateUser)
-	mux.HandleFunc("GET /users/{id}", userHandler.handleGetUser)
-	mux.HandleFunc("PATCH /users/{id}", userHandler.handleUpdateUser)
-	mux.HandleFunc("DELETE /users/{id}", userHandler.handleDeleteUser)
+	mux.HandleFunc("GET /users/{id}",
+		s.AuthRequired(authService, userHandler.handleGetUser))
+	mux.HandleFunc("PATCH /users/{id}",
+		s.AuthRequired(authService, userHandler.handleUpdateUser))
+	mux.HandleFunc("DELETE /users/{id}",
+		s.AuthRequired(authService, userHandler.handleDeleteUser))
 
 	// productFileStore := product.NewFileStore()
 	productPostgresStore := product.NewPostgresStore(s.DB)
 	productService := product.NewService(productPostgresStore)
 	productHandler := NewProductHandler(s, *productService)
-	mux.HandleFunc("GET /products", productHandler.handleGetProducts)
-	mux.HandleFunc("GET /products/{id}", productHandler.handleGetProduct)
-	mux.HandleFunc("POST /products", productHandler.handleCreateProduct)
+	mux.HandleFunc("GET /products",
+		s.AuthRequired(authService, productHandler.handleGetProducts))
+	mux.HandleFunc("GET /products/{id}",
+		s.AuthRequired(authService, productHandler.handleGetProduct))
+	mux.HandleFunc("POST /products",
+		s.AuthRequired(authService, productHandler.handleCreateProduct))
 
 	// orderFileStore := order.NewFileStore()
 	orderPostgresStore := order.NewPostgresStore(s.DB)
@@ -43,9 +56,12 @@ func (s *APIServer) NewRouter() *http.ServeMux {
 		*productService,
 		*userService)
 	orderHandler := NewOrderHandler(s, *orderService)
-	mux.HandleFunc("GET /orders", orderHandler.handleGetOrders)
-	mux.HandleFunc("POST /orders", orderHandler.handleCreateOrder)
-	mux.HandleFunc("GET /orders/{id}", orderHandler.handleGetOrderByID)
+	mux.HandleFunc("GET /orders",
+		s.AuthRequired(authService, orderHandler.handleGetOrders))
+	mux.HandleFunc("POST /orders",
+		s.AuthRequired(authService, orderHandler.handleCreateOrder))
+	mux.HandleFunc("GET /orders/{id}",
+		s.AuthRequired(authService, orderHandler.handleGetOrderByID))
 
 	return mux
 }

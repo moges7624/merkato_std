@@ -1,7 +1,9 @@
 info:
   name: orders
   type: folder
-  seq: 4
+  seq: 1
 
 request:
-  auth: inherit
+  auth:
+    type: bearer
+    token: "{{token}}"

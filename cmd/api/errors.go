@@ -12,6 +12,7 @@ const (
 	InvalidRequestError ErrorType = "invalid_request_error"
 	InternalError       ErrorType = "api_error"
 	InventoryError      ErrorType = "inventory_error"
+	AuthenticationError ErrorType = "authentication_error"
 )
 
 type APIError struct {
@@ -102,4 +103,18 @@ func (s *APIServer) inventoryErrorResponse(
 		Message: message,
 	}
 	s.errorResponse(w, r, http.StatusUnprocessableEntity, APIErr)
+}
+
+func (s *APIServer) failedAuthenticationResponse(
+	w http.ResponseWriter,
+	r *http.Request,
+	message string,
+) {
+	w.Header().Set("WWW-Authenticate", "Bearer")
+
+	APIErr := &APIError{
+		Type:    AuthenticationError,
+		Message: message,
+	}
+	s.errorResponse(w, r, http.StatusUnauthorized, APIErr)
 }

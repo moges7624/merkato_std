@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"sync"
 
 	"github.com/brianvoe/gofakeit/v7"
@@ -43,6 +44,18 @@ func (s *FileStore) getUser(id int) (*User, error) {
 		return nil, ErrUserNotFound
 	}
 	return &user, nil
+}
+
+func (s *FileStore) getUserByEmail(email string) (*User, error) {
+	return nil, errors.New("not impelemented")
+	// s.mu.RLock()
+	// defer s.mu.RUnlock()
+	//
+	// user, ok := s.users[id]
+	// if !ok {
+	// 	return nil, ErrUserNotFound
+	// }
+	// return &user, nil
 }
 
 func (s *FileStore) createUser(user *User) (*User, error) {

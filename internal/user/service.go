@@ -23,6 +23,15 @@ func (s *Service) GetUser(id int) (*User, error) {
 	return user, nil
 }
 
+func (s *Service) GetUserByEmail(email string) (*User, error) {
+	user, err := s.store.getUserByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
 func (s *Service) CreateUser(tmpUser *CreateUserParams) (*User, error) {
 	user := &User{
 		Name:  tmpUser.Name,

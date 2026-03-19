@@ -8,3 +8,7 @@ variables:
     value: "{{base_url}}/products"
   - name: orders
     value: "{{base_url}}/orders"
+  - name: auth
+    value: "{{base_url}}/auth"
+  - secret: true
+    name: token

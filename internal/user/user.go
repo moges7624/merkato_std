@@ -25,6 +25,20 @@ type User struct {
 	Password password `json:"-"`
 }
 
+func (p *password) PasswordMatches(plaintextPassword string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword(p.hash, []byte(plaintextPassword))
+	if err != nil {
+		switch {
+		case errors.Is(err, bcrypt.ErrMismatchedHashAndPassword):
+			return false, nil
+		default:
+			return false, err
+		}
+	}
+
+	return true, nil
+}
+
 func (u *User) setPassword(plaintextPassword string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(plaintextPassword), 12)
 	if err != nil {
@@ -38,6 +52,16 @@ func (u *User) setPassword(plaintextPassword string) error {
 	return nil
 }
 
+func ValidateEmail(v *validator.Validator, email string) {
+	v.Check(email != "", "email", "must be provided")
+
+	v.Check(
+		validator.Matches(email, regexp.MustCompile(validator.EmailRX)),
+		"email",
+		"must be a valid email address",
+	)
+}
+
 func ValidatePasswordPlaintext(v *validator.Validator, password string) {
 	v.Check(password != "", "password", "must be provided")
 	v.Check(len(password) >= 8, "password", "must be at least 8 bytes long")
@@ -47,19 +71,10 @@ func ValidatePasswordPlaintext(v *validator.Validator, password string) {
 func ValidateUser(v *validator.Validator, user *User) {
 	v.Check(user.Name != "", "name", "must be provided")
 	v.Check(len(user.Name) <= 500, "name", "must not be more than 72 bytes long")
-	v.Check(user.Email != "", "email", "must be provided")
 
-	// if user.Password.plaintext != nil {
-	// 	ValidatePasswordPlaintext(v, *user.Password.plaintext)
-	// }
+	ValidateEmail(v, user.Email)
 
-	// if user.Password.hash == nil {
-	// 	panic("missing password hash for user")
-	// }
-
-	v.Check(
-		validator.Matches(user.Email, regexp.MustCompile(validator.EmailRX)),
-		"email",
-		"must be a valid email address",
-	)
+	if user.Password.plaintext != nil {
+		ValidatePasswordPlaintext(v, *user.Password.plaintext)
+	}
 }

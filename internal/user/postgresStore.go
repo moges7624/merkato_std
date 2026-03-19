@@ -70,6 +70,30 @@ func (ps *PostgresStore) getUser(id int) (*User, error) {
 	return &user, nil
 }
 
+func (ps *PostgresStore) getUserByEmail(email string) (*User, error) {
+	query := `SELECT id, name, email, password_hash
+	FROM users 
+	WHERE email = $1`
+	var user User
+
+	err := ps.DB.QueryRow(query, email).Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.Password.hash,
+	)
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrUserNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &user, nil
+}
+
 func (ps *PostgresStore) createUser(user *User) (*User, error) {
 	query := `INSERT INTO users (name, email, password_hash)
 	VALUES ($1, $2, $3)
