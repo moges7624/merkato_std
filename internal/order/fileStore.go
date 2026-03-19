@@ -16,7 +16,7 @@ func NewFileStore() *FileStore {
 		orders: map[int64]Order{
 			1: {
 				ID:                 1,
-				UserID:             1,
+				CustomerID:         1,
 				Status:             StatusPending,
 				TotalAmountInCents: 23999,
 				Items: []OrderItem{
@@ -34,7 +34,7 @@ func NewFileStore() *FileStore {
 			},
 			2: {
 				ID:                 2,
-				UserID:             1,
+				CustomerID:         1,
 				Status:             StatusShipped,
 				TotalAmountInCents: 97329,
 			},

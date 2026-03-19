@@ -22,6 +22,7 @@ func (ps *PostgresStore) getAll() ([]*Order, error) {
 		orders.customer_id,
 		orders.status,
 		orders.total_amount_in_cents,
+		order_items.id,
 		order_items.product_id,
 		order_items.quantity,
 		order_items.purchase_price_in_cents
@@ -42,15 +43,16 @@ func (ps *PostgresStore) getAll() ([]*Order, error) {
 
 	for rows.Next() {
 		var o Order
-		var productID sql.NullInt64
+		var productID, itemID sql.NullInt64
 		var itemQuantity sql.NullInt16
 		var purchasePriceInCents sql.NullInt32
 
 		err := rows.Scan(
 			&o.ID,
-			&o.UserID,
+			&o.CustomerID,
 			&o.Status,
 			&o.TotalAmountInCents,
+			&itemID,
 			&productID,
 			&itemQuantity,
 			&purchasePriceInCents)
@@ -63,8 +65,9 @@ func (ps *PostgresStore) getAll() ([]*Order, error) {
 			orders = append(orders, &o)
 		}
 
-		if productID.Valid {
+		if itemID.Valid {
 			item := OrderItem{
+				ID:                   itemID.Int64,
 				ProductID:            productID.Int64,
 				Quantity:             int(itemQuantity.Int16),
 				PurchasePriceInCents: purchasePriceInCents.Int32,
@@ -114,7 +117,7 @@ func (ps *PostgresStore) getByID(id int64) (*Order, error) {
 
 		err := rows.Scan(
 			&o.ID,
-			&o.UserID,
+			&o.CustomerID,
 			&o.Status,
 			&o.TotalAmountInCents,
 			&productID,
@@ -127,7 +130,7 @@ func (ps *PostgresStore) getByID(id int64) (*Order, error) {
 		if order == nil {
 			order = &Order{
 				ID:                 o.ID,
-				UserID:             o.UserID,
+				CustomerID:         o.CustomerID,
 				Status:             o.Status,
 				TotalAmountInCents: o.TotalAmountInCents,
 			}
@@ -168,7 +171,7 @@ func (ps *PostgresStore) insert(o *Order) error {
 `
 
 	var orderID int64
-	err = tx.QueryRow(query, o.UserID, o.Status, o.TotalAmountInCents).Scan(&orderID)
+	err = tx.QueryRow(query, o.CustomerID, o.Status, o.TotalAmountInCents).Scan(&orderID)
 	if err != nil {
 		return fmt.Errorf("failed to insert order: %w", err)
 	}

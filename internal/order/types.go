@@ -19,8 +19,8 @@ type orderItemRequest struct {
 }
 
 type CreateOrderRequest struct {
-	UserID *int64              `json:"user_id"`
-	Items  *[]orderItemRequest `json:"items"`
+	CustomerID *int64              `json:"customer_id"`
+	Items      *[]orderItemRequest `json:"items"`
 }
 
 func ValidateOrderRequestItmes(
@@ -68,7 +68,7 @@ func ValidateCreateOrderRequest(
 	v *validator.Validator,
 	body *CreateOrderRequest,
 ) {
-	v.Check(body.UserID != nil, "user_id", "must be provided")
+	v.Check(body.CustomerID != nil, "user_id", "must be provided")
 	v.Check(body.Items != nil, "items", "must be provided")
 	v.Check(len(*body.Items) > 0, "items", "must have atleast one item")
 	ValidateOrderRequestItmes(v, body.Items)

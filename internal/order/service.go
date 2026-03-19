@@ -32,7 +32,7 @@ func (s *Service) GetOrderByID(id int64) (*Order, error) {
 }
 
 func (s *Service) CreateOrder(req *CreateOrderRequest) (*Order, error) {
-	_, err := s.userService.GetUser(int(*req.UserID))
+	_, err := s.userService.GetUser(int(*req.CustomerID))
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ func (s *Service) CreateOrder(req *CreateOrderRequest) (*Order, error) {
 	}
 
 	order := &Order{
-		UserID:             *req.UserID,
+		CustomerID:         *req.CustomerID,
 		Status:             StatusPending,
 		Items:              items,
 		TotalAmountInCents: int32(totalPriceInCents),
