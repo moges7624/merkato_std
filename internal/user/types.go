@@ -7,7 +7,7 @@ import (
 )
 
 type Store interface {
-	getUsers() (*[]User, error)
+	getUsers() ([]*User, error)
 	getUser(id int) (*User, error)
 	getUserByEmail(email string) (*User, error)
 	createUser(user *User) (*User, error)

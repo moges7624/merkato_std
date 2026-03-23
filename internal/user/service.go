@@ -10,7 +10,7 @@ func NewService(store Store) *Service {
 	}
 }
 
-func (s *Service) GetUsers() (*[]User, error) {
+func (s *Service) GetUsers() ([]*User, error) {
 	return s.store.getUsers()
 }
 

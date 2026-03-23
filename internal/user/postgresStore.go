@@ -16,7 +16,7 @@ func NewPostgresStore(db *sql.DB) *PostgresStore {
 	}
 }
 
-func (ps *PostgresStore) getUsers() (*[]User, error) {
+func (ps *PostgresStore) getUsers() ([]*User, error) {
 	query := `SELECT id, name, email 
 	FROM users`
 
@@ -27,7 +27,7 @@ func (ps *PostgresStore) getUsers() (*[]User, error) {
 
 	defer rows.Close()
 
-	users := []User{}
+	users := []*User{}
 
 	for rows.Next() {
 		var user User
@@ -41,10 +41,10 @@ func (ps *PostgresStore) getUsers() (*[]User, error) {
 			return nil, err
 		}
 
-		users = append(users, user)
+		users = append(users, &user)
 	}
 
-	return &users, nil
+	return users, nil
 }
 
 func (ps *PostgresStore) getUser(id int) (*User, error) {

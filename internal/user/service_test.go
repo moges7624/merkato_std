@@ -18,7 +18,7 @@ func TestGetUsers(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, len(*users), 2)
+		assert.Equal(t, len(users), 2)
 	})
 }
 
@@ -36,7 +36,7 @@ func TestGetUser(t *testing.T) {
 	})
 
 	t.Run("Given non existing user id, it should throw not found error", func(t *testing.T) {
-		user, err := userSevice.GetUser(2)
+		user, err := userSevice.GetUser(3)
 		if err == nil {
 			t.Fatal("error shouldn't be nil")
 		}

@@ -23,16 +23,16 @@ func NewFileStore() *FileStore {
 	}
 }
 
-func (s *FileStore) getUsers() (*[]User, error) {
+func (s *FileStore) getUsers() ([]*User, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	users := make([]User, 0, len(s.users))
+	users := make([]*User, 0, len(s.users))
 	for _, user := range s.users {
-		users = append(users, user)
+		users = append(users, &user)
 	}
 
-	return &users, nil
+	return users, nil
 }
 
 func (s *FileStore) getUser(id int) (*User, error) {
