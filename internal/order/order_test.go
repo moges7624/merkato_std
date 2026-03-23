@@ -1,7 +1,6 @@
 package order
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/brianvoe/gofakeit/v7"
