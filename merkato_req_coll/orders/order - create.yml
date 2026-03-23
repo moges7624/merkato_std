@@ -10,11 +10,11 @@ http:
     type: json
     data: |-
       {
-        "user_id": 2,
+        "customer_id": 35,
         "items": [
           {
             "product_id": 1,
-            "quantity": 120,
+            "quantity": 1,
             "price_in_usd": 29.33
           },
           {

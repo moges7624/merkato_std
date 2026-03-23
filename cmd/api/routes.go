@@ -22,6 +22,7 @@ func (s *APIServer) NewRouter() *http.ServeMux {
 	userPgStore := user.NewPostgresStore(s.DB)
 	userService := user.NewService(userPgStore)
 
+	// TODO: read the secretes from env
 	authService := auth.NewJWTService("sdsdfdJljjadfef", "sdsdfdJljjadfef")
 	authHandler := NewAuthHandler(s, *authService, *userService)
 	mux.HandleFunc("POST /auth/login", authHandler.handleLogin)
