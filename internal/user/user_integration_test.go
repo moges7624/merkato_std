@@ -17,10 +17,6 @@ func newUserService(t *testing.T) *Service {
 }
 
 func TestUserService_GetUsers_Empty(t *testing.T) {
-	if testing.Short() {
-		t.Skip("UserService: skipping integration test")
-	}
-
 	userSvc := newUserService(t)
 
 	t.Run("return empty slice", func(t *testing.T) {
@@ -36,10 +32,6 @@ func TestUserService_GetUsers_Empty(t *testing.T) {
 }
 
 func TestUserService_CreateUser(t *testing.T) {
-	if testing.Short() {
-		t.Skip("UserService: skipping integration test")
-	}
-
 	userSvc := newUserService(t)
 
 	name := gofakeit.Name()
@@ -93,10 +85,6 @@ func TestUserService_CreateUser(t *testing.T) {
 }
 
 func TestUserService_UpdateUser(t *testing.T) {
-	if testing.Short() {
-		t.Skip("UserService: skipping integration test")
-	}
-
 	userSvc := newUserService(t)
 
 	updateUserParams := UpateUserParams{
