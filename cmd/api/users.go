@@ -97,12 +97,7 @@ func (h *UserHandler) handleCreateUser(w http.ResponseWriter, r *http.Request) {
 
 func (h *UserHandler) handleUpdateUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil {
-		h.s.badRequestresponse(w, r, fmt.Errorf("user id required"))
-		return
-	}
-
-	if id < 1 {
+	if err != nil || id < 1 {
 		h.s.badRequestresponse(w, r, fmt.Errorf("invalid user id"))
 		return
 	}
