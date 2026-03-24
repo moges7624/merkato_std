@@ -1,7 +1,6 @@
 package assert
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -17,7 +16,6 @@ func Equal[T comparable](t *testing.T, actual, expected T) {
 func Null(t *testing.T, actual any) {
 	t.Helper()
 
-	fmt.Println("actual is: ", actual)
 	if !DeepIsNil(actual) {
 		t.Errorf("got: %v; expected: %v", actual, nil)
 	}
