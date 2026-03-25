@@ -13,7 +13,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 	"github.com/moges7624/merkato_std/internal/product"
-	"github.com/moges7624/merkato_std/internal/user"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func migrationsPath() string {
@@ -70,15 +70,17 @@ func SeedDB(t *testing.T, db *sql.DB, table string) {
 }
 
 func seedUser(t *testing.T, db *sql.DB) {
-	up := &user.CreateUserParams{
-		Name:              "Adams",
-		Email:             "adams@mail.com",
-		PlainTextPassword: "pass1234",
+	query := `
+	INSERT INTO users (name, email, password_hash)
+	VALUES ($1, $2, $3)
+	`
+
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte("pass1234"), 12)
+	if err != nil {
+		t.Fatalf("error hashing password, %v", err)
 	}
 
-	userSvc := user.NewService(user.NewPostgresStore(db))
-
-	_, err := userSvc.CreateUser(up)
+	_, err = db.Exec(query, "Adams", "adams@mail.com", passwordHash)
 	if err != nil {
 		t.Fatalf("error seeding user, %v", err)
 	}
