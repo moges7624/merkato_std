@@ -7,10 +7,12 @@ import (
 	"runtime"
 	"testing"
 
+	"github.com/brianvoe/gofakeit/v7"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+	"github.com/moges7624/merkato_std/internal/product"
 	"github.com/moges7624/merkato_std/internal/user"
 )
 
@@ -60,6 +62,8 @@ func SeedDB(t *testing.T, db *sql.DB, table string) {
 	switch table {
 	case "users":
 		seedUser(t, db)
+	case "products":
+		seedProduct(t, db)
 	default:
 		t.Fatal("SeedDB: invalid table name")
 	}
@@ -77,5 +81,24 @@ func seedUser(t *testing.T, db *sql.DB) {
 	_, err := userSvc.CreateUser(up)
 	if err != nil {
 		t.Fatalf("error seeding user, %v", err)
+	}
+}
+
+func seedProduct(t *testing.T, db *sql.DB) {
+	p := product.Product{
+		Name:         gofakeit.Product().Name,
+		PriceInCents: 8800,
+		Quantity:     34,
+	}
+
+	query := `
+	INSERT INTO products (name, price_in_cents, quantity)
+	VALUES ($1, $2, $3)
+	RETURNING id, created_at
+	`
+
+	_, err := db.Exec(query, p.Name, p.PriceInCents, p.Quantity)
+	if err != nil {
+		t.Fatalf("error seeding product, %v", err)
 	}
 }
