@@ -114,7 +114,7 @@ func TestUserHandler_CreateUser(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, apiRes.User.ID, 1)
+		assert.Equal(t, apiRes.User.ID, 2)
 		assert.Equal(t, apiRes.User.Email, "john@mail.com")
 	})
 
@@ -185,7 +185,7 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 		mux.HandleFunc("PATCH /users/{id}", UserHandler.handleUpdateUser)
 
 		reqBody := `{"name": "james"}`
-		req := httptest.NewRequest("PATCH", "/users/1", strings.NewReader(reqBody))
+		req := httptest.NewRequest("PATCH", "/users/2", strings.NewReader(reqBody))
 		req.Header.Set("Content-Type", "application/json")
 
 		w := httptest.NewRecorder()
@@ -210,5 +210,38 @@ func TestUserHandler_UpdateUser(t *testing.T) {
 
 		assert.Equal(t, apiRes.Error.Message, user.ErrUserNotFound.Error())
 		assert.Equal(t, apiRes.Error.Type, ResourceNotFound)
+	})
+
+	t.Run("given existing user id, it should return 200", func(t *testing.T) {
+		mux := http.NewServeMux()
+		mux.HandleFunc("PATCH /users/{id}", UserHandler.handleUpdateUser)
+
+		reqBody := `{"name": "james"}`
+		req := httptest.NewRequest("PATCH", "/users/1", strings.NewReader(reqBody))
+		req.Header.Set("Content-Type", "application/json")
+
+		w := httptest.NewRecorder()
+
+		mux.ServeHTTP(w, req)
+
+		res := w.Result()
+		defer res.Body.Close()
+
+		if res.StatusCode == http.StatusMethodNotAllowed {
+			t.Fatal("method not allowed")
+		}
+
+		assert.Equal(t, res.StatusCode, http.StatusOK)
+
+		var apiRes struct {
+			User user.User
+		}
+
+		err := json.NewDecoder(res.Body).Decode(&apiRes)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assert.Equal(t, apiRes.User.Name, "james")
 	})
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+	"github.com/moges7624/merkato_std/internal/user"
 )
 
 func migrationsPath() string {
@@ -44,6 +45,8 @@ func NewTestDB(t *testing.T) *sql.DB {
 		t.Fatal(err)
 	}
 
+	seedDB(t, db)
+
 	t.Cleanup(func() {
 		defer db.Close()
 
@@ -54,4 +57,19 @@ func NewTestDB(t *testing.T) *sql.DB {
 		}
 	})
 	return db
+}
+
+func seedDB(t *testing.T, db *sql.DB) {
+	up := &user.CreateUserParams{
+		Name:              "Adams",
+		Email:             "james@mail.com",
+		PlainTextPassword: "pass1234",
+	}
+
+	userSvc := user.NewService(user.NewPostgresStore(db))
+
+	_, err := userSvc.CreateUser(up)
+	if err != nil {
+		t.Fatalf("error seeding user, %v", err)
+	}
 }
