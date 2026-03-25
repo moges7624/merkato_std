@@ -50,7 +50,7 @@ func (s *Service) CreateOrder(req *CreateOrderRequest) (*Order, error) {
 			return nil, err
 		}
 
-		priceInCent := int32(*item.PriceInUSD) * 100
+		priceInCent := int32(*item.PriceInUSD * 100)
 
 		items = append(items, OrderItem{
 			ProductID:            *item.ProductID,
