@@ -13,6 +13,7 @@ const (
 	InternalError       ErrorType = "api_error"
 	InventoryError      ErrorType = "inventory_error"
 	AuthenticationError ErrorType = "authentication_error"
+	AuthorizationError  ErrorType = "authorization_error"
 )
 
 type APIError struct {
@@ -117,4 +118,18 @@ func (s *APIServer) failedAuthenticationResponse(
 		Message: message,
 	}
 	s.errorResponse(w, r, http.StatusUnauthorized, APIErr)
+}
+
+func (s *APIServer) failedAuthorizationResponse(
+	w http.ResponseWriter,
+	r *http.Request,
+	message string,
+) {
+	w.Header().Set("WWW-Authenticate", "Bearer")
+
+	APIErr := &APIError{
+		Type:    AuthorizationError,
+		Message: message,
+	}
+	s.errorResponse(w, r, http.StatusForbidden, APIErr)
 }

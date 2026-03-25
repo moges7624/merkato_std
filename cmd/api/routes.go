@@ -51,7 +51,10 @@ func (s *APIServer) NewRouter() *http.ServeMux {
 	productService := product.NewService(productPostgresStore)
 	productHandler := NewProductHandler(s, *productService)
 	mux.HandleFunc("GET /products",
-		s.AuthRequired(authService, productHandler.handleGetProducts))
+		s.AuthRequired(authService,
+			s.requirePermission("products:read", productHandler.handleGetProducts)),
+	)
+	// s.AuthRequired(authService, productHandler.handleGetProducts))
 	mux.HandleFunc("GET /products/{id}",
 		s.AuthRequired(authService, productHandler.handleGetProduct))
 	mux.HandleFunc("POST /products",
