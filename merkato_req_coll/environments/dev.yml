@@ -12,3 +12,5 @@ variables:
     value: "{{base_url}}/auth"
   - secret: true
     name: token
+  - name: permissions
+    value: "{{base_url}}/permissions"

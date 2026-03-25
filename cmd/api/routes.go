@@ -6,6 +6,7 @@ import (
 
 	"github.com/moges7624/merkato_std/internal/auth"
 	"github.com/moges7624/merkato_std/internal/order"
+	"github.com/moges7624/merkato_std/internal/permission"
 	"github.com/moges7624/merkato_std/internal/product"
 	"github.com/moges7624/merkato_std/internal/user"
 )
@@ -26,6 +27,12 @@ func (s *APIServer) NewRouter() *http.ServeMux {
 	authService := auth.NewJWTService("sdsdfdJljjadfef", "sdsdfdJljjadfef")
 	authHandler := NewAuthHandler(s, *authService, *userService)
 	mux.HandleFunc("POST /auth/login", authHandler.handleLogin)
+
+	permissionRepo := permission.NewPostgresStore(s.DB)
+	permissionService := permission.NewService(permissionRepo)
+	permissionHandler := NewPermissionHandler(s, *permissionService)
+	mux.HandleFunc("GET /permissions", permissionHandler.handleGetAll)
+	mux.HandleFunc("POST /permissions", permissionHandler.handleAddForUser)
 
 	// userFileStore := user.NewFileStore()
 	userHandler := NewUserHandler(s, *userService)
