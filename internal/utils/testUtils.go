@@ -45,12 +45,9 @@ func NewTestDB(t *testing.T) *sql.DB {
 		t.Fatal(err)
 	}
 
-	seedDB(t, db)
-
 	t.Cleanup(func() {
 		defer db.Close()
 
-		// run down migratoins here
 		err := m.Down()
 		if err != nil {
 			t.Fatal(err)
@@ -59,10 +56,19 @@ func NewTestDB(t *testing.T) *sql.DB {
 	return db
 }
 
-func seedDB(t *testing.T, db *sql.DB) {
+func SeedDB(t *testing.T, db *sql.DB, table string) {
+	switch table {
+	case "users":
+		seedUser(t, db)
+	default:
+		t.Fatal("SeedDB: invalid table name")
+	}
+}
+
+func seedUser(t *testing.T, db *sql.DB) {
 	up := &user.CreateUserParams{
 		Name:              "Adams",
-		Email:             "james@mail.com",
+		Email:             "adams@mail.com",
 		PlainTextPassword: "pass1234",
 	}
 

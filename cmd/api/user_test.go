@@ -19,6 +19,7 @@ func newUserHandler(t *testing.T) *UserHandler {
 	db := utils.NewTestDB(t)
 	api := &APIServer{
 		logger: slog.New(slog.DiscardHandler),
+		DB:     db,
 	}
 
 	userRepo := user.NewPostgresStore(db)
@@ -44,7 +45,8 @@ func TestUserHandler_getUsers(t *testing.T) {
 }
 
 func TestUserHandler_CreateUser(t *testing.T) {
-	UserHandler := newUserHandler(t)
+	userHandler := newUserHandler(t)
+	utils.SeedDB(t, userHandler.s.DB, "users")
 
 	t.Run("given incomplete input, it should return 422", func(t *testing.T) {
 		body := `{"name": "john", "email":"john@mail.com"}`
@@ -54,7 +56,7 @@ func TestUserHandler_CreateUser(t *testing.T) {
 		}
 
 		w := httptest.NewRecorder()
-		UserHandler.handleCreateUser(w, req)
+		userHandler.handleCreateUser(w, req)
 
 		res := w.Result()
 
@@ -69,7 +71,7 @@ func TestUserHandler_CreateUser(t *testing.T) {
 		}
 
 		w := httptest.NewRecorder()
-		UserHandler.handleCreateUser(w, req)
+		userHandler.handleCreateUser(w, req)
 
 		res := w.Result()
 		defer res.Body.Close()
@@ -98,7 +100,7 @@ func TestUserHandler_CreateUser(t *testing.T) {
 		}
 
 		w := httptest.NewRecorder()
-		UserHandler.handleCreateUser(w, req)
+		userHandler.handleCreateUser(w, req)
 
 		res := w.Result()
 		defer res.Body.Close()
@@ -119,7 +121,7 @@ func TestUserHandler_CreateUser(t *testing.T) {
 	})
 
 	t.Run("given a user exists, it should return 422", func(t *testing.T) {
-		body := `{"name": "john", "email":"john@mail.com", "password":"12345678"}`
+		body := `{"name": "Adams", "email":"adams@mail.com", "password":"12345678"}`
 		req, err := http.NewRequest(http.MethodGet, "/", strings.NewReader(body))
 		req.Header.Set("Content-Type", "application/json")
 
@@ -128,8 +130,7 @@ func TestUserHandler_CreateUser(t *testing.T) {
 		}
 
 		w := httptest.NewRecorder()
-		UserHandler.handleCreateUser(w, req)
-		UserHandler.handleCreateUser(w, req)
+		userHandler.handleCreateUser(w, req)
 
 		res := w.Result()
 		defer res.Body.Close()
@@ -151,6 +152,7 @@ func TestUserHandler_CreateUser(t *testing.T) {
 
 func TestUserHandler_UpdateUser(t *testing.T) {
 	UserHandler := newUserHandler(t)
+	utils.SeedDB(t, UserHandler.s.DB, "users")
 
 	t.Run("given invalid user id, it should return 422", func(t *testing.T) {
 		mux := http.NewServeMux()
