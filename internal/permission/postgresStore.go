@@ -43,8 +43,8 @@ func (ps *PostgresStore) getAll() ([]Permission, error) {
 
 func (ps *PostgresStore) getAllForUser(userID int64) ([]Permission, error) {
 	query := `
-	SELECT permissions.code form permissions , 
-	INNER JOIN users_permisssions
+	SELECT permissions.code from permissions 
+	INNER JOIN users_permissions
 	ON permissions.id = users_permissions.permission_id
 	WHERE users_permissions.user_id = $1
 	`
