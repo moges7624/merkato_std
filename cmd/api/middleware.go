@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -44,11 +43,6 @@ func (s *APIServer) AuthRequired(
 		}
 
 		ctx := context.WithValue(r.Context(), "userID", claims.UserID)
-		userID, ok := ctx.Value("userID").(string)
-		if !ok {
-			panic("missing user value in request context")
-		}
-		fmt.Println("authenticate: user id from context is:", userID)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}

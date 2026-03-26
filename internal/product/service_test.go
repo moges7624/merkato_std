@@ -18,9 +18,9 @@ func TestGetAllProducts(t *testing.T) {
 		{ID: 2, Name: name2, PriceInCents: gofakeit.Int32(), Quantity: gofakeit.Int32(), CreatedAt: gofakeit.Date()},
 	}
 
-	mockRepo.On("getProducts").Return(dummyProds, nil)
+	mockRepo.On("getProducts").Return(dummyProds, 2, nil)
 
-	prods, err := prodSvc.GetProducts()
+	prods, _, err := prodSvc.GetProducts(&ProductFilters{})
 
 	assert.NoError(t, err)
 	assert.Len(t, prods, 2)
@@ -33,9 +33,9 @@ func TestGetAllProductsEmpty(t *testing.T) {
 	mockRepo := new(MockRepository)
 	prodSvc := NewService(mockRepo)
 
-	mockRepo.On("getProducts").Return([]*Product{}, nil)
+	mockRepo.On("getProducts").Return([]*Product{}, 2, nil)
 
-	prods, err := prodSvc.GetProducts()
+	prods, _, err := prodSvc.GetProducts(&ProductFilters{})
 
 	assert.NoError(t, err)
 	assert.Empty(t, prods)

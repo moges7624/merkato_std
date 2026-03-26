@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/moges7624/merkato_std/internal/filter"
 	"github.com/moges7624/merkato_std/internal/product"
 	"github.com/moges7624/merkato_std/internal/validator"
 )
@@ -29,13 +30,39 @@ func (h *ProductHandler) handleGetProducts(
 	w http.ResponseWriter,
 	r *http.Request,
 ) {
-	prods, err := h.service.GetProducts()
+	var input struct {
+		Name string
+		filter.Filters
+	}
+
+	v := validator.New()
+
+	qs := r.URL.Query()
+
+	input.Name = h.s.readString(qs, "name", "")
+	input.Page = h.s.readInt(qs, "page", 1, v)
+	input.PageSize = h.s.readInt(qs, "page_size", 20, v)
+	input.Sort = h.s.readString(qs, "sort", "id")
+
+	input.SortSafelist = []string{
+		"name", "-name", "id", "-id",
+	}
+
+	if filter.ValidateFilters(v, input.Filters); !v.Valid() {
+		h.s.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	prods, metadata, err := h.service.GetProducts(&product.ProductFilters{
+		Name:    input.Name,
+		Filters: input.Filters,
+	})
 	if err != nil {
 		h.s.serverErrorResponse(w, r, err)
 		return
 	}
 
-	err = writeJSON(w, http.StatusOK, envelope{"products": prods})
+	err = writeJSON(w, http.StatusOK, envelope{"products": prods, "metadata": metadata})
 	if err != nil {
 		h.s.serverErrorResponse(w, r, err)
 		return

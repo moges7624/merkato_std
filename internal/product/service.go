@@ -1,5 +1,9 @@
 package product
 
+import (
+	"github.com/moges7624/merkato_std/internal/filter"
+)
+
 type Service struct {
 	store Store
 }
@@ -10,13 +14,16 @@ func NewService(store Store) *Service {
 	}
 }
 
-func (s *Service) GetProducts() ([]*Product, error) {
-	products, err := s.store.getProducts()
+func (s *Service) GetProducts(filters *ProductFilters) ([]*Product,
+	filter.Metadata, error,
+) {
+	products, total, err := s.store.getProducts(filters)
 	if err != nil {
-		return nil, err
+		return nil, filter.Metadata{}, err
 	}
 
-	return products, nil
+	metadata := filter.CalculateMetadata(total, filters.Page, filters.PageSize)
+	return products, metadata, nil
 }
 
 func (s *Service) GetProduct(id int64) (*Product, error) {

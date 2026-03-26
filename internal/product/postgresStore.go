@@ -3,6 +3,7 @@ package product
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 )
 
 type PostgresStore struct {
@@ -15,25 +16,32 @@ func NewPostgresStore(db *sql.DB) *PostgresStore {
 	}
 }
 
-func (ps *PostgresStore) getProducts() ([]*Product, error) {
-	query := `
-	SELECT id, name, price_in_cents, quantity, created_at
+func (ps *PostgresStore) getProducts(filters *ProductFilters) ([]*Product, int, error) {
+	query := fmt.Sprintf(
+		`SELECT count(*) OVER(), id, name, price_in_cents, quantity, created_at
 	FROM products
-`
+	WHERE (to_tsvector('simple', name) @@ plainto_tsquery('simple', $1) OR $1 = '')
+	ORDER BY %s %s, id ASC
+	LIMIT $2 OFFSET $3`,
+		filters.SortColumn(),
+		filters.SortDirection())
 
-	rows, err := ps.DB.Query(query)
+	rows, err := ps.DB.Query(query, filters.Name, filters.Limit(), filters.Offset())
 	if err != nil {
-		return nil, err
+		fmt.Println(err)
+		return nil, 0, err
 	}
 
 	defer rows.Close()
 
+	totalRecords := 0
 	products := []*Product{}
 
 	for rows.Next() {
 		var p Product
 
 		err := rows.Scan(
+			&totalRecords,
 			&p.ID,
 			&p.Name,
 			&p.PriceInCents,
@@ -41,13 +49,13 @@ func (ps *PostgresStore) getProducts() ([]*Product, error) {
 			&p.CreatedAt,
 		)
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
 		products = append(products, &p)
 	}
 
-	return products, nil
+	return products, totalRecords, nil
 }
 
 func (ps *PostgresStore) getProduct(id int64) (*Product, error) {

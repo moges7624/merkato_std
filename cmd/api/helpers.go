@@ -6,7 +6,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"strconv"
 	"strings"
+
+	"github.com/moges7624/merkato_std/internal/validator"
 )
 
 type envelope map[string]any
@@ -90,4 +94,53 @@ func readJSON(
 	}
 
 	return nil
+}
+
+func (s *APIServer) readString(
+	qs url.Values,
+	key string,
+	defaultValue string,
+) string {
+	str := qs.Get(key)
+
+	if str == "" {
+		return defaultValue
+	}
+
+	return str
+}
+
+func (s *APIServer) readCSV(
+	qs url.Values,
+	key string,
+	defaultValue []string,
+) []string {
+	csv := qs.Get(key)
+
+	if csv == "" {
+		return defaultValue
+	}
+
+	return strings.Split(csv, ",")
+}
+
+func (s *APIServer) readInt(
+	qs url.Values,
+	key string,
+	defaultValue int,
+	v *validator.Validator,
+) int {
+	str := qs.Get(key)
+
+	if str == "" {
+		return defaultValue
+	}
+
+	i, err := strconv.Atoi(str)
+	if err != nil {
+		v.AddError(key, "must be an integer value")
+		return defaultValue
+	}
+
+	return i
 }

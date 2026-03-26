@@ -1,11 +1,12 @@
 package product
 
 import (
+	"github.com/moges7624/merkato_std/internal/filter"
 	"github.com/moges7624/merkato_std/internal/validator"
 )
 
 type Store interface {
-	getProducts() ([]*Product, error)
+	getProducts(filters *ProductFilters) ([]*Product, int, error)
 	getProduct(id int64) (*Product, error)
 	createProduct(prod *Product) error
 	updateProduct(prod *Product) error
@@ -15,6 +16,11 @@ type CreateProductRequest struct {
 	Name          *string  `json:"name"`
 	PriceInDollar *float32 `json:"price_in_dollar"`
 	Qauntity      *int32   `json:"quantity"`
+}
+
+type ProductFilters struct {
+	Name string
+	filter.Filters
 }
 
 func ValidateCreateProductParams(v *validator.Validator, cpr CreateProductRequest) {
