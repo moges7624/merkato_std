@@ -38,7 +38,7 @@ func (ps *PostgresStore) getAll() ([]*Order, error) {
 
 	defer rows.Close()
 
-	var orders []*Order
+	orders := []*Order{}
 	orderMap := make(map[int64]*Order)
 
 	for rows.Next() {
