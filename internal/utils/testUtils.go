@@ -12,6 +12,7 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+	"github.com/moges7624/merkato_std/internal/config"
 	"github.com/moges7624/merkato_std/internal/product"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -24,8 +25,18 @@ func migrationsPath() string {
 }
 
 func NewTestDB(t *testing.T) *sql.DB {
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		t.Fatal("error loading env vars")
+	}
+
+	dsn := cfg.TestDSN
+	if dsn == "" {
+		t.Fatal("error getting test db dsb")
+	}
+
 	db, err := sql.Open("postgres",
-		"postgres://merkato:123456@localhost/test_merkatostd?sslmode=disable")
+		dsn)
 	if err != nil {
 		t.Fatal(err)
 	}

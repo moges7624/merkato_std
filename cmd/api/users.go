@@ -25,6 +25,7 @@ func NewUserHandler(s *APIServer, userService usr.Service) *UserHandler {
 func (h *UserHandler) handleGetUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.service.GetUsers()
 	if err != nil {
+		fmt.Println(err)
 		h.s.serverErrorResponse(w, r, err)
 		return
 	}

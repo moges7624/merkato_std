@@ -2,12 +2,13 @@ package main
 
 import (
 	"database/sql"
-	"flag"
 	"log/slog"
 	"net/http"
 	"os"
+	"strconv"
 
 	_ "github.com/lib/pq"
+	"github.com/moges7624/merkato_std/internal/config"
 )
 
 type APIServer struct {
@@ -19,29 +20,28 @@ type APIServer struct {
 }
 
 func main() {
-	var port int
-	var dsn string
-
-	flag.IntVar(&port, "port", 4000, "API server port")
-	flag.StringVar(
-		&dsn,
-		"db-dsn",
-		"",
-		"PostgreSQL DSN",
-	)
-
-	flag.Parse()
-
 	logHanlder := slog.NewJSONHandler(os.Stdout, nil)
 	logger := slog.New(logHanlder)
 
-	db, err := openDB(dsn)
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		logger.Error("error loading config", "detail", err.Error())
+		os.Exit(1)
+	}
+
+	db, err := openDB(cfg.DSN)
 	if err != nil {
 		logger.Error(err.Error())
 		os.Exit(1)
 	}
 
 	defer db.Close()
+
+	port, err := strconv.Atoi(cfg.Port)
+	if err != nil {
+		logger.Error("invalid port number")
+		os.Exit(1)
+	}
 
 	app := &APIServer{
 		port:   port,

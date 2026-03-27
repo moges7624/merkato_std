@@ -14,13 +14,22 @@ confirm:
 ## run/api: run the cmd/api application
 .PHONY: run/api
 run/api:
-	@echo ${MERKATO_STD_DB_DSN}
-	go run ./cmd/api -db-dsn=${MERKATO_STD_DB_DSN}
+	@go run ./cmd/api -db-dsn=${MERKATO_STD_DB_DSN}
 
 ## db/psql: connect to the database using psql
 .PHONY: db/psql
 db/psql:
 	psql ${MERKATO_STD_DB_DSN}
+
+## test: run all unit tests
+.PHONY: test
+test:
+	go test -v ./...
+
+## test/integration: run all integration tests
+.PHONY: test/integration
+test/integration:
+	go test -p=1 -tags=integration -v ./... -count=1
 
 ## db/migrations/new name=$1: create a new database migration
 .PHONY: db/migrations/new
