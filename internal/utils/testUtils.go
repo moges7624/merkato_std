@@ -3,6 +3,7 @@ package utils
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -31,6 +32,7 @@ func NewTestDB(t *testing.T) *sql.DB {
 	}
 
 	dsn := cfg.TestDSN
+	fmt.Println(dsn)
 	if dsn == "" {
 		t.Fatal("error getting test db dsb")
 	}

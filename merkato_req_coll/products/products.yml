@@ -5,7 +5,17 @@ info:
 
 http:
   method: GET
-  url: "{{products}}"
+  url: "{{products}}?sort=name&page=1&page_size=3"
+  params:
+    - name: sort
+      value: name
+      type: query
+    - name: page
+      value: "1"
+      type: query
+    - name: page_size
+      value: "3"
+      type: query
   auth:
     type: bearer
     token: "{{token}}"

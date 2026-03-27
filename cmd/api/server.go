@@ -7,7 +7,7 @@ import (
 
 func (s *APIServer) serve() error {
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", s.port),
+		Addr:    fmt.Sprintf(":%d", s.cfg.Port),
 		Handler: &s.routes,
 	}
 

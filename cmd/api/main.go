@@ -5,17 +5,15 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"strconv"
 
 	_ "github.com/lib/pq"
 	"github.com/moges7624/merkato_std/internal/config"
 )
 
 type APIServer struct {
-	port   int
 	routes http.ServeMux
 	logger *slog.Logger
-	dsn    string
+	cfg    config.Config
 	DB     *sql.DB
 }
 
@@ -37,21 +35,20 @@ func main() {
 
 	defer db.Close()
 
-	port, err := strconv.Atoi(cfg.Port)
 	if err != nil {
 		logger.Error("invalid port number")
 		os.Exit(1)
 	}
 
 	app := &APIServer{
-		port:   port,
 		logger: logger,
+		cfg:    *cfg,
 		DB:     db,
 	}
 
 	app.routes = *app.NewRouter()
 
-	app.logger.Info("Starting server", "port", app.port)
+	app.logger.Info("Starting server", "port", app.cfg.Port)
 
 	err = app.serve()
 	if err != nil {
